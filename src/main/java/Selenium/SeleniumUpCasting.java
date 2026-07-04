@@ -9,13 +9,32 @@ public class SeleniumUpCasting {
 
 		/**
 		 *
-		 * SearchContext (Interface) | extends | WebDriver (Interface) |
-		 * ----------------------------------- | | | JavascriptExecutor TakesScreenshot
-		 * HasCapabilities (Interface) (Interface) (Interface) | | |
-		 * -----------------|---------------- | implements | RemoteWebDriver (Class) |
-		 * ----------------------------------- | | | ChromiumDriver FirefoxDriver
-		 * SafariDriver (Class) (Class) (Class) | ----------------- | | ChromeDriver
-		 * EdgeDriver (Class) (Class)
+		 *                 SearchContext (Interface)
+		 *                        |
+		 *                     extends
+		 *                        |
+		 *              WebDriver (Interface)
+		 *                        |
+		 *        -----------------------------------
+		 *        |                |                |
+		 *  JavascriptExecutor  TakesScreenshot  HasCapabilities
+		 *      (Interface)       (Interface)      (Interface)
+		 *        |                |                |
+		 *        -----------------|----------------
+		 *                        |
+		 *                  implements
+		 *                        |
+		 *               RemoteWebDriver (Class)
+		 *                        |
+		 *          -----------------------------------
+		 *          |                 |               |
+		 *    ChromiumDriver     FirefoxDriver    SafariDriver
+		 *        (Class)            (Class)         (Class)
+		 *          |
+		 *    -----------------
+		 *    |               |
+		 * ChromeDriver   EdgeDriver
+		 *    (Class)       (Class)
 		 *
 		 */
 
@@ -48,5 +67,4 @@ public class SeleniumUpCasting {
 		driver.quit();
 
 	}
-
 }
