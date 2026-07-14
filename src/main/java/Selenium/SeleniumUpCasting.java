@@ -64,7 +64,7 @@ public class SeleniumUpCasting {
 			System.out.println("url is incorrect: " + url);
 		}
 
-		driver.quit();
+		//driver.quit();
 
 	}
 }
