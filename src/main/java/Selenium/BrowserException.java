@@ -1,10 +1,9 @@
 package Selenium;
 
-public class BrowserException {
+public class BrowserException extends RuntimeException{
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	public BrowserException(String message) {
+		super(message);
 	}
 
 }
