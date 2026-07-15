@@ -8,7 +8,7 @@ public class TestFlipkart {
 		
 		BrowserUtils utils = new BrowserUtils();
 		ReadProperty property = new ReadProperty();
-		Properties prp = property.craeteProp();
+		Properties prp = property.craeteDriver();
 		
 		//String browserName = "chrome";
 		

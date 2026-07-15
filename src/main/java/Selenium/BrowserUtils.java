@@ -8,7 +8,7 @@ import org.openqa.selenium.safari.SafariDriver;
 
 public class BrowserUtils {
 	
-	WebDriver driver;
+	private WebDriver driver;
 	
 	/**
 	 * The method may return different browser implementations 
@@ -67,7 +67,13 @@ public class BrowserUtils {
 	public String getCurrentPageURL() {
 		return driver.getCurrentUrl();
 	}
+	public void maximizePage() {
+		driver.manage().window().maximize();
+	}
 	
+	public void minimizePage() {
+		driver.manage().window().minimize();
+	}
 	public void quitBrowser() {
 		driver.quit();
 	}

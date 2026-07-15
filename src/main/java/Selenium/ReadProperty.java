@@ -8,7 +8,7 @@ import java.util.Properties;
 public class ReadProperty {
 	
 	private Properties prop;
-	public Properties craeteProp() {
+	public Properties craeteDriver() {
 		
 		try {
 			FileInputStream fis = new FileInputStream("./src/main/java/config/config.properties");
