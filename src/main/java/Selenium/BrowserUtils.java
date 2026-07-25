@@ -1,6 +1,7 @@
 package Selenium;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -9,6 +10,7 @@ import org.openqa.selenium.safari.SafariDriver;
 public class BrowserUtils {
 	
 	private WebDriver driver;
+
 	
 	/**
 	 * The method may return different browser implementations 
@@ -44,20 +46,34 @@ public class BrowserUtils {
 		return driver;
 	}
 	
+	/**
+	 * Validates the given URL before browser navigation.
+	 *
+	 * @param url URL to be validated
+	 * @throws BrowserException if the URL is null, blank, or invalid
+	 */
+	private void validateURL(String url) {
+
+	    if (url == null) {
+	        throw new BrowserException("URL cannot be null.");
+	    }
+
+	    if (url.isBlank()) {
+	        throw new BrowserException("URL cannot be blank.");
+	    }
+
+	    if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+	        throw new BrowserException("Invalid URL: " + url);
+	    }
+	}
+	
 	public void launchURL(String url) {
-		if(url==null) {
-			throw new BrowserException("INVALID URL.." +url);
-		}
-		
-		if(url.isBlank() || url.isEmpty()) {
-			throw new BrowserException("BLANK/EMPTY url.." +url);
-		}
-		
-		if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-		    throw new BrowserException("Invalid URL: " + url);
-		}
-		
-		driver.get(url);
+		validateURL(url);
+		try {
+	        driver.get(url);
+	    } catch (WebDriverException e) {
+	        throw new BrowserException("Unable to launch URL: " + url);
+	    }
 	}
 	
 	public String getPageTitle() {
@@ -80,6 +96,45 @@ public class BrowserUtils {
 	
 	public void closeBrowser() {
 		driver.close();
+	}
+	
+	/**
+	 * Navigates to the specified URL.
+	 *
+	 * @param url URL to navigate to
+	 * @throws IllegalArgumentException if the URL is null or blank
+	 */
+	public void navigateTo(String url) {
+		validateURL(url);		
+			try {
+		        driver.navigate().to(url);
+		    } catch (WebDriverException e) {
+		        throw new BrowserException("Unable to navigate to URL: " + url);
+		    }
+		}
+	
+	
+	/**
+	 * Navigates to the previous page in the browser history.
+	 */
+	public void goBack() {
+		driver.navigate().back();
+	}
+	
+	
+	/**
+	 * Navigates to the next page in the browser history.
+	 */
+	public void goForward() {
+		driver.navigate().forward();
+	}
+	
+	
+	/**
+	 * Refreshes the current web page.
+	 */
+	public void refresh() {
+		driver.navigate().refresh();
 	}
 
 }

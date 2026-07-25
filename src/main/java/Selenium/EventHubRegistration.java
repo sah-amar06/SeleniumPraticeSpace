@@ -33,7 +33,7 @@ public class EventHubRegistration {
 
 		utils.doClick(registerBtn);
 
-		if (utils.getText(emailErrorMsg)!=null) {
+		if (utils.doGetText(emailErrorMsg)!=null) {
 			System.out.println("Please enter your valid email id");
 
 			utils.doSendKeys(emailField, "test1122110@test.com");
@@ -41,7 +41,7 @@ public class EventHubRegistration {
 			utils.doSendKeys(cnfrmPwd, "Test@1234");
 			utils.doClick(registerBtn);
 			Thread.sleep(1000);
-			if(utils.getText(emailExistpopup)!=null) {
+			if(utils.doGetText(emailExistpopup)!=null) {
 				System.out.println("Email is already registered, please sign in..");
 				utils.scrollToElement(signIn);
 				Thread.sleep(2000);

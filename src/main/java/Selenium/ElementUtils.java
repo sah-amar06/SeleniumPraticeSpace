@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 
 public class ElementUtils {
@@ -11,36 +12,34 @@ public class ElementUtils {
 	private WebDriver driver;
 	private JavascriptExecutor js;
 
-	
 	/**
 	 * Initializes the ElementUtils class with the WebDriver instance.
 	 *
-	 * This constructor initializes the WebDriver and JavaScriptExecutor
-	 * instances required to perform web element interactions and JavaScript
-	 * operations throughout the framework.
+	 * This constructor initializes the WebDriver and JavaScriptExecutor instances
+	 * required to perform web element interactions and JavaScript operations
+	 * throughout the framework.
 	 *
 	 * @param driver WebDriver instance used to interact with the browser
 	 * @throws IllegalArgumentException if the WebDriver instance is null
 	 */
 	public ElementUtils(WebDriver driver) {
-		
-		if(driver == null){
-		    throw new IllegalArgumentException("WebDriver instance cannot be null.");
+
+		if (driver == null) {
+			throw new IllegalArgumentException("WebDriver instance cannot be null.");
 		}
 		this.driver = driver;
 		this.js = (JavascriptExecutor) driver;
 	}
 
-
 	/**
 	 * Locates and returns the web element identified by the given locator.
 	 *
-	 * This method serves as the centralized element retrieval method for
-	 * the framework. It validates the locator, locates the web element,
-	 * and throws a custom ElementNotFoundException if the element cannot
-	 * be found. Centralizing element lookup ensures consistent exception
-	 * handling and simplifies future enhancements such as explicit waits,
-	 * logging, retry mechanisms, or element highlighting.
+	 * This method serves as the centralized element retrieval method for the
+	 * framework. It validates the locator, locates the web element, and throws a
+	 * custom ElementNotFoundException if the element cannot be found. Centralizing
+	 * element lookup ensures consistent exception handling and simplifies future
+	 * enhancements such as explicit waits, logging, retry mechanisms, or element
+	 * highlighting.
 	 *
 	 * @param locator Selenium locator used to identify the target element
 	 * @return WebElement corresponding to the specified locator
@@ -49,7 +48,7 @@ public class ElementUtils {
 	 * @throws ElementNotFoundException if the element cannot be located
 	 */
 	public WebElement getElement(By locator) {
-		
+
 		validateLocator(locator);
 		try {
 			WebElement element = driver.findElement(locator);
@@ -63,26 +62,24 @@ public class ElementUtils {
 	/**
 	 * Validates the input text before performing any element interaction.
 	 *
-	 * This method ensures that the provided input value is neither
-	 * null nor blank. It follows the fail-fast principle by
-	 * rejecting invalid input before interacting with the WebDriver.
+	 * This method ensures that the provided input value is neither null nor blank.
+	 * It follows the fail-fast principle by rejecting invalid input before
+	 * interacting with the WebDriver.
 	 *
 	 * @param value the text to be validated
-	 * @throws IllegalArgumentException if the input value is {@code null}
-	 *                                  or blank
+	 * @throws IllegalArgumentException if the input value is {@code null} or blank
 	 */
 	private void validateInput(String value) {
-	    if (value == null || value.isBlank()) {
-	        throw new IllegalArgumentException("Input value cannot be null or blank.");
-	    }
+		if (value == null || value.isBlank()) {
+			throw new IllegalArgumentException("Input value cannot be null or blank.");
+		}
 	}
-	
+
 	/**
 	 * Validates the locator before attempting to locate a web element.
 	 *
-	 * This method verifies that the supplied locator is not
-	 * null. It prevents invalid WebDriver calls and helps
-	 * fail fast with a meaningful exception.
+	 * This method verifies that the supplied locator is not null. It prevents
+	 * invalid WebDriver calls and helps fail fast with a meaningful exception.
 	 *
 	 * @param locator the Selenium locator used to identify a web element
 	 * @throws IllegalArgumentException if the locator is {@code null}
@@ -93,18 +90,17 @@ public class ElementUtils {
 		}
 	}
 
-	
 	/**
 	 * Enters the specified text into the target web element.
 	 *
-	 * This method validates the locator and input value before locating
-	 * the element and performing the sendKeys() operation.
+	 * This method validates the locator and input value before locating the element
+	 * and performing the sendKeys() operation.
 	 *
 	 * @param locator Selenium locator used to identify the target element
-	 * @param value Text to be entered into the element
+	 * @param value   Text to be entered into the element
 	 *
-	 * @throws IllegalArgumentException if the locator is null or the input
-	 *                                  value is null or blank
+	 * @throws IllegalArgumentException if the locator is null or the input value is
+	 *                                  null or blank
 	 * @throws ElementNotFoundException if the element cannot be located
 	 */
 	public void doSendKeys(By locator, String value) {
@@ -114,12 +110,11 @@ public class ElementUtils {
 		getElement(locator).sendKeys(value);
 	}
 
-	
 	/**
 	 * Clicks on the specified web element.
 	 *
-	 * This method locates the element using the provided locator and
-	 * performs a click operation.
+	 * This method locates the element using the provided locator and performs a
+	 * click operation.
 	 *
 	 * @param locator Selenium locator used to identify the target element
 	 *
@@ -132,12 +127,11 @@ public class ElementUtils {
 		element.click();
 	}
 
-	
 	/**
 	 * Scrolls the page until the specified element is brought into the viewport.
 	 *
-	 * This method uses JavaScript scrollIntoView() to bring the target
-	 * element to the center of the visible page.
+	 * This method uses JavaScript scrollIntoView() to bring the target element to
+	 * the center of the visible page.
 	 *
 	 * @param locator Selenium locator used to identify the target element
 	 *
@@ -151,12 +145,11 @@ public class ElementUtils {
 		js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
 	}
 
-	
 	/**
 	 * Retrieves the visible text of the specified web element.
 	 *
-	 * This method locates the target element and returns the text
-	 * displayed to the user.
+	 * This method locates the target element and returns the text displayed to the
+	 * user.
 	 *
 	 * @param locator Selenium locator used to identify the target element
 	 * @return Visible text of the web element
@@ -164,19 +157,20 @@ public class ElementUtils {
 	 * @throws IllegalArgumentException if the locator is null
 	 * @throws ElementNotFoundException if the element cannot be located
 	 */
-	public String getText(By locator) {
+	public String doGetText(By locator) {
+		validateLocator(locator);
 		return getElement(locator).getText();
 	}
 
-	
 	/**
-	 * Types the given text into a web element one character at a time with a configurable delay.
+	 * Types the given text into a web element one character at a time with a
+	 * configurable delay.
 	 *
 	 * This method simulates human typing by sending each character individually
-	 * instead of sending the entire string in a single {@code sendKeys()} call.
-	 * It is useful for testing applications that trigger events on every keystroke,
-	 * such as auto-suggestion search boxes, dynamic dropdowns, debounced input fields,
-	 * or bot detection mechanisms.
+	 * instead of sending the entire string in a single {@code sendKeys()} call. It
+	 * is useful for testing applications that trigger events on every keystroke,
+	 * such as auto-suggestion search boxes, dynamic dropdowns, debounced input
+	 * fields, or bot detection mechanisms.
 	 *
 	 * Before typing, the method validates the locator and input value to ensure
 	 * they are not null or blank. It locates the target element only once and
@@ -184,24 +178,25 @@ public class ElementUtils {
 	 * performance.
 	 *
 	 * @param locator the locator used to identify the target web element
-	 * @param value the text to be entered into the element
-	 * @param delay delay in milliseconds between each character
+	 * @param value   the text to be entered into the element
+	 * @param delay   delay in milliseconds between each character
 	 *
 	 * @throws IllegalArgumentException if the locator is null, the input value is
 	 *                                  null/blank, or the delay is negative
 	 * @throws ElementNotFoundException if the element cannot be located
-	 * @throws RuntimeException if the current thread is interrupted while typing
+	 * @throws RuntimeException         if the current thread is interrupted while
+	 *                                  typing
 	 */
 	public void typeCharacterByCharacter(By locator, String value, long delay) {
 
 		// Validate method inputs before interacting with WebDriver.
 		validateLocator(locator);
 		validateInput(value);
-		
-		if(delay < 0) {
-		    throw new IllegalArgumentException("Delay cannot be negative.");
+
+		if (delay < 0) {
+			throw new IllegalArgumentException("Delay cannot be negative.");
 		}
-		
+
 		// Locate the element only once to avoid repeated DOM lookups.
 		WebElement element = getElement(locator);
 
@@ -217,4 +212,25 @@ public class ElementUtils {
 			}
 		}
 	}
+
+	/**
+	 * Returns the value of the specified attribute from a web element.
+	 *
+	 * Validates the locator and attribute name before retrieving the attribute
+	 * value from the target element.
+	 *
+	 * @param locator       Selenium locator used to identify the element
+	 * @param attributeName Name of the attribute to retrieve
+	 * @return Attribute value, or null if the attribute is not present
+	 *
+	 * @throws IllegalArgumentException if the locator or attribute name is invalid
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public String doGetAttribute(By locator, String attributeName) {
+		validateLocator(locator);
+		validateInput(attributeName);
+
+		return getElement(locator).getAttribute(attributeName);
+	}
+	
 }

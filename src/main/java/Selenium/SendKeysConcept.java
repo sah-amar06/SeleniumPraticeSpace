@@ -30,7 +30,7 @@ public class SendKeysConcept {
 
 	static WebDriver driver;
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 
 		driver = new ChromeDriver();
 		driver.get("https://www.google.com/");
@@ -92,7 +92,8 @@ public class SendKeysConcept {
 			
 			try {
 			Thread.sleep(delay);
-			}catch(InterruptedException e) {
+			}catch(InterruptedException e) {	
+				// Restore the interrupted status before propagating the exception.
 				Thread.currentThread().interrupt();
 				throw new RuntimeException("Thread interrupted while typing: ", e);
 			}
