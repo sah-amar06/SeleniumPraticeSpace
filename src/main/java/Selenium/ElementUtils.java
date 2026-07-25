@@ -1,10 +1,12 @@
 package Selenium;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 
 public class ElementUtils {
@@ -30,35 +32,8 @@ public class ElementUtils {
 		this.driver = driver;
 		this.js = (JavascriptExecutor) driver;
 	}
-
-	/**
-	 * Locates and returns the web element identified by the given locator.
-	 *
-	 * This method serves as the centralized element retrieval method for the
-	 * framework. It validates the locator, locates the web element, and throws a
-	 * custom ElementNotFoundException if the element cannot be found. Centralizing
-	 * element lookup ensures consistent exception handling and simplifies future
-	 * enhancements such as explicit waits, logging, retry mechanisms, or element
-	 * highlighting.
-	 *
-	 * @param locator Selenium locator used to identify the target element
-	 * @return WebElement corresponding to the specified locator
-	 *
-	 * @throws IllegalArgumentException if the locator is null
-	 * @throws ElementNotFoundException if the element cannot be located
-	 */
-	public WebElement getElement(By locator) {
-
-		validateLocator(locator);
-		try {
-			WebElement element = driver.findElement(locator);
-			return element;
-		} catch (NoSuchElementException e) {
-			throw new ElementNotFoundException("Element not found on the page: " + locator, e);
-		}
-
-	}
-
+	
+	
 	/**
 	 * Validates the input text before performing any element interaction.
 	 *
@@ -90,6 +65,62 @@ public class ElementUtils {
 		}
 	}
 
+	/**
+	 * Locates and returns the web element identified by the given locator.
+	 *
+	 * This method serves as the centralized element retrieval method for the
+	 * framework. It validates the locator, locates the web element, and throws a
+	 * custom ElementNotFoundException if the element cannot be found. Centralizing
+	 * element lookup ensures consistent exception handling and simplifies future
+	 * enhancements such as explicit waits, logging, retry mechanisms, or element
+	 * highlighting.
+	 *
+	 * @param locator Selenium locator used to identify the target element
+	 * @return WebElement corresponding to the specified locator
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public WebElement getElement(By locator) {
+
+		validateLocator(locator);
+		try {
+			WebElement element = driver.findElement(locator);
+			return element;
+		} catch (NoSuchElementException e) {
+			throw new ElementNotFoundException("Element not found on the page: " + locator, e);
+		}
+
+	}
+	
+	/**
+	 * Returns all web elements matching the specified locator.
+	 *
+	 * @param locator Selenium locator used to identify the elements
+	 * @return List of matching WebElements (empty if no elements are found)
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 */
+	public  List<WebElement> getElements(By locator) {
+		validateLocator(locator);
+		
+		return driver.findElements(locator);
+	}
+
+	
+	/**
+	 * Returns the number of elements matching the specified locator.
+	 *
+	 * @param locator Selenium locator used to identify the elements
+	 * @return Number of matching elements
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 */
+	public int getElementsCount(By locator) {
+		validateLocator(locator);
+	    return getElements(locator).size();
+	}
+	
 	/**
 	 * Enters the specified text into the target web element.
 	 *
@@ -229,8 +260,56 @@ public class ElementUtils {
 	public String doGetAttribute(By locator, String attributeName) {
 		validateLocator(locator);
 		validateInput(attributeName);
-
 		return getElement(locator).getAttribute(attributeName);
 	}
+	
+	
+	/**
+	 * Returns the visible text of all elements matching the given locator.
+	 *
+	 * Blank or empty text values are ignored.
+	 *
+	 * @param locator Selenium locator used to identify the elements
+	 * @return List of visible element texts
+	 * @throws IllegalArgumentException if the locator is null
+	 */
+	public List<String> getElementsTextList(By locator) {		
+		List<WebElement> elements = getElements(locator);
+		List<String> textList = new ArrayList<>(); 
+		
+		for(WebElement element:elements) {
+			String text = element.getText().trim();			
+			if(!text.isBlank()) {
+				textList.add(text);
+			}
+		}
+		return textList;
+	}
+	
+	/**
+	 * Returns the specified attribute values of all matching elements.
+	 *
+	 * Null or blank attribute values are ignored.
+	 *
+	 * @param locator Selenium locator used to identify the elements
+	 * @param attributeName Name of the attribute (e.g., "href", "src", "alt", "value")
+	 * @return List of attribute values
+	 *
+	 * @throws IllegalArgumentException if the locator or attribute name is null or blank
+	 */
+	public List<String> getElementAttributeList(By locator, String attributeName) {
+		List<WebElement> imageList = getElements(locator);
+		List<String> attributeValues = new ArrayList<>();
+		for(WebElement e:imageList) {
+			String values = e.getAttribute(attributeName);
+			
+			if(values!=null && !values.isBlank()) {
+				attributeValues.add(values);
+			}
+		}
+		return attributeValues;
+		
+	}
+
 	
 }

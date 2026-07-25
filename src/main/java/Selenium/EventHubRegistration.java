@@ -13,7 +13,7 @@ public class EventHubRegistration {
 		By cnfrmPwd = By.xpath("//input[@placeholder='Repeat your password']");
 		By registerBtn = By.id("register-btn");
 		By emailErrorMsg = By.xpath("//p[text()='Enter a valid email']");
-		By pwdErrorMsg = By.xpath("//p[contains(text(),'Password does not')]");
+		//By pwdErrorMsg = By.xpath("//p[contains(text(),'Password does not')]");
 		By emailExistpopup = By.xpath("//p[contains(text(),'Email already registered')]");
 		By signInEmail = By.id("email");
 		By signInPwd = By.id("password");

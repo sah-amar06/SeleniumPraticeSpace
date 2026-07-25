@@ -1,29 +1,34 @@
 package Selenium;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-
 public class NavigationConcept {
 
-	static WebDriver driver;
-
 	public static void main(String[] args) {
-
-		driver = new ChromeDriver();
-		driver.get("https://www.google.com/");
 		
-		System.out.println("Page title: "+driver.getTitle());
+		testNavigation();
+	}
+	
+	public static void testNavigation() {
 		
-		driver.navigate().to("https://sauce-demo.myshopify.com/");
 		
-		System.out.println("Page title: "+driver.getTitle());
+		BrowserUtils brUtils = new BrowserUtils();
+		//ElementUtils eUtils = new ElementUtils(driver);
 		
-		driver.navigate().back();
-		System.out.println("Page title after navigating to  backward: "+driver.getTitle());
-		driver.navigate().forward();
-		System.out.println("Page title after navigating to forward: "+driver.getTitle());
+		brUtils.launchBrowser("chrome");
+		brUtils.launchURL("https://www.google.com/");
+		System.out.println(brUtils.getPageTitle());
 		
-		driver.navigate().refresh();
+		brUtils.navigateTo("https://sauce-demo.myshopify.com/");
+		System.out.println(brUtils.getPageTitle());
+		
+		brUtils.goBack();
+		System.out.println("Page title after navigating to  backward: "+brUtils.getPageTitle());
+		brUtils.goForward();
+		System.out.println("Page title after navigating to  backward: " +brUtils.getPageTitle());
+		
+		brUtils.refresh();
+		
+		brUtils.quitBrowser();
+		
 	}
 	
 	
