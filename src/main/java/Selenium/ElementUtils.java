@@ -8,6 +8,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 
 public class ElementUtils {
 
@@ -307,9 +309,172 @@ public class ElementUtils {
 				attributeValues.add(values);
 			}
 		}
-		return attributeValues;
+		return attributeValues;		
+	}
+	
+	/**
+	 * Creates and returns a Select object for the specified dropdown element.
+	 *
+	 * This method centralizes the creation of the Select object, eliminating
+	 * duplicate code across dropdown utility methods. It validates the locator
+	 * before locating the element and initializing the Select instance.
+	 *
+	 * @param locator Selenium locator used to identify the dropdown element
+	 * @return Select object associated with the specified dropdown
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the dropdown element cannot be located
+	 */
+	private Select getSelect(By locator) {
+	    validateLocator(locator);
+	    try {
+	        return new Select(getElement(locator));
+	    } catch (UnexpectedTagNameException e) {
+	        throw new ElementException("Element is not a dropdown: " + locator, e);
+	    }
+	}
+	
+	
+	/**
+	 * Selects an option from the dropdown by index.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param index Index of the option to select
+	 *
+	 * @throws IllegalArgumentException if locator is null or index is negative
+	 */
+	public void doSelectByIndex(By locator, int index) {
+		if (index < 0) {
+	        throw new IllegalArgumentException("Index cannot be negative.");
+	    }
+		getSelect(locator).selectByIndex(index);
+	}
+	
+	/**
+	 * Selects an option from the dropdown by visible text.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param value Visible text of the option
+	 *
+	 * @throws IllegalArgumentException if locator is null or value is null/blank
+	 */
+	public void doSelectByVisibleText(By locator, String text) {
+		validateInput(text);
+		getSelect(locator).selectByVisibleText(text);
+	}
+	
+	/**
+	 * Selects an option from the dropdown by value attribute.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param value Value attribute of the option
+	 *
+	 * @throws IllegalArgumentException if locator is null or value is null/blank
+	 */
+	public void doSelectByValue(By locator, String value) {
+		validateInput(value);
+		getSelect(locator).selectByValue(value);
 		
 	}
+	
+	/**
+	 * Deselects all selected options from a multi-select dropdown.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the dropdown cannot be located
+	 */
+	public void deselectAll(By locator) {
+		getSelect(locator).deselectAll();
+	}
+	
+	/**
+	 * Deselects an option from the dropdown by visible text.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param text Visible text of the option
+	 *
+	 * @throws IllegalArgumentException if the locator is null or text is null/blank
+	 * @throws ElementNotFoundException if the dropdown cannot be located
+	 */
+	public void deselectByVisibleText(By locator, String text) {
+		validateInput(text);
+		getSelect(locator).deselectByVisibleText(text);
+	}
+	
+	/**
+	 * Deselects an option from the dropdown by index.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param index Index of the option to deselect
+	 *
+	 * @throws IllegalArgumentException if the locator is null or index is negative
+	 * @throws ElementNotFoundException if the dropdown cannot be located
+	 */
+	public void deselectByIndex(By locator, int index) {
+		
+		if (index < 0) {
+	        throw new IllegalArgumentException("Index cannot be negative.");
+	    }
+		
+		getSelect(locator).deselectByIndex(index);
+	}
+	
+	/**
+	 * Deselects an option from the dropdown by value attribute.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param value Value attribute of the option
+	 *
+	 * @throws IllegalArgumentException if the locator is null or value is null/blank
+	 * @throws ElementNotFoundException if the dropdown cannot be located
+	 */
+	public void deselectByValue(By locator, String value) {
+		validateInput(value);
+		getSelect(locator).deselectByValue(value);
+	}
+	
+	/**
+	 * Deselects an option whose visible text contains the specified value.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param text Partial visible text of the option
+	 *
+	 * @throws IllegalArgumentException if the locator is null or text is null/blank
+	 * @throws ElementNotFoundException if the dropdown cannot be located
+	 */
+	public void deselectByContainsVisibleText(By locator, String text) {
+		validateInput(text);
+		getSelect(locator).deSelectByContainsVisibleText(text);
+	}
 
+	/**
+	 * Returns the visible text of all options in the dropdown.
+	 *
+	 * Blank option texts are ignored.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @return List of visible dropdown option texts
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the dropdown cannot be located
+	 */
+	public List<String> getDropdownOptions(By locator) {
+
+	    List<String> optionsText = new ArrayList<>();
+	    int count =1;
+	    for (WebElement option : getSelect(locator).getOptions()) {
+
+	        String text = option.getText().trim();
+	        
+	        if (!text.isBlank()) {
+	            optionsText.add(count+":" +text);
+	            count++;
+	        }
+	    }
+
+	    return optionsText;
+	}
 	
 }
