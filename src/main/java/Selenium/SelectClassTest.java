@@ -25,7 +25,10 @@ public class SelectClassTest {
 		eUtils.doSelectByValue(country, "India");
 		
 		List<String> countryList = eUtils.getDropdownOptions(country);
-		System.out.print(countryList +"/");
+		System.out.println(countryList);
+		
+		System.out.println(eUtils.getDropdownOptionsCount(country));
+		System.out.println(eUtils.getDropdownOptionsCount(employees));
 		brUtils.quitBrowser();
 	}
 

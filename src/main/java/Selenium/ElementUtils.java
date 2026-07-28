@@ -109,6 +109,18 @@ public class ElementUtils {
 		return driver.findElements(locator);
 	}
 
+	/**
+	 * Checks whether the specified element is present and displayed.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @return true if the element is displayed; false otherwise
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 */
+	public boolean isElementDisplayed(By locator) {
+		validateLocator(locator);
+	    return !getElements(locator).isEmpty();
+	}
 	
 	/**
 	 * Returns the number of elements matching the specified locator.
@@ -176,6 +188,26 @@ public class ElementUtils {
 
 		WebElement element = getElement(locator);
 		js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
+	}
+	
+	
+	/**
+	 * Clicks the specified element using JavaScript.
+	 *
+	 * This method is useful when a normal Selenium click()
+	 * fails due to intercepted or hidden element issues.
+	 *
+	 * @param locator Selenium locator of the target element
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public void doJavaScriptClick(By locator) {
+	    try {
+	        js.executeScript("arguments[0].click();", getElement(locator));
+	    } catch (Exception e) {
+	        throw new ElementException("Unable to perform JavaScript click on: " + locator);
+	    }
 	}
 
 	/**
@@ -330,7 +362,7 @@ public class ElementUtils {
 	    try {
 	        return new Select(getElement(locator));
 	    } catch (UnexpectedTagNameException e) {
-	        throw new ElementException("Element is not a dropdown: " + locator, e);
+	        throw new ElementException("Element is not a dropdown: " + locator);
 	    }
 	}
 	
@@ -464,7 +496,9 @@ public class ElementUtils {
 
 	    List<String> optionsText = new ArrayList<>();
 	    int count =1;
-	    for (WebElement option : getSelect(locator).getOptions()) {
+	    List<WebElement> options = getSelect(locator).getOptions();
+	    
+	    for (WebElement option:options) {
 
 	        String text = option.getText().trim();
 	        
@@ -475,6 +509,75 @@ public class ElementUtils {
 	    }
 
 	    return optionsText;
+	}
+	
+	
+	/**
+	 * Returns the total number of options available in the dropdown.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @return Number of dropdown options
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the dropdown cannot be located
+	 */
+	public int getDropdownOptionsCount(By locator) {	
+		 return getSelect(locator).getOptions().size();	
+	}
+	
+	
+	/**
+	 * Selects a dropdown option by visible text without using the
+	 * Select class selection methods.
+	 *
+	 * This method uses the Select class only to retrieve the list of
+	 * available options and performs the selection manually by clicking
+	 * the matching option.
+	 *
+	 * @param locator Selenium locator of the dropdown
+	 * @param value Visible text of the option to select
+	 *
+	 * @throws IllegalArgumentException if the locator is null or target is null/blank
+	 * @throws ElementException if the specified option is not found
+	 */
+	public void selectOptionWithoutSelectMethods(By locator, String value) {
+		
+		List<WebElement> optionsText = getSelect(locator).getOptions();
+		
+		for(WebElement options:optionsText) {
+			String text = options.getText().trim();
+			if(text.equals(value)) {
+				options.click();
+				return;
+			}
+		}
+		throw new ElementException("Dropdown option not found: " + value);
+	}
+	
+	
+	/**
+	 * Selects a dropdown option without using the Selenium Select class.
+	 *
+	 * This method iterates through all matching option elements and
+	 * clicks the option whose visible text matches the specified value.
+	 *
+	 * @param locator Selenium locator identifying the dropdown options
+	 * @param value Visible text of the option to select
+	 *
+	 * @throws IllegalArgumentException if the locator is null or value is null/blank
+	 * @throws ElementException if the specified option is not found
+	 */
+	public void selectOptionByTextWithoutSelect(By locator, String value) {		
+		validateInput(value);
+		List<WebElement> elementLists = getElements(locator);
+		for(WebElement elements:elementLists) {
+			String textValue = elements.getText().trim();
+			if(textValue.equals(value)) {
+				elements.click();
+				return;
+			}
+		}
+		throw new ElementException("Dropdown option not found: " + value);
 	}
 	
 }
