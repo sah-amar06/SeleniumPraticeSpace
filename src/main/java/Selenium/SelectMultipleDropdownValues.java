@@ -1,12 +1,8 @@
 package Selenium;
 
-import java.util.List;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.Select;
 
 public class SelectMultipleDropdownValues {
 
@@ -38,12 +34,6 @@ public class SelectMultipleDropdownValues {
 	
 	public static void testSelectAndSeselectAll(By locator) {
 		ElementUtils eUtils = new ElementUtils(driver);
-		String bird1 = "American flamingo";
-		String bird2= "Chilean flamingo";
-		String bird3 = "Andean flamingo";
-		String bird4= "Greater flamingo";
-		String bird5 = "James's flamingo";
-		String bird6= "Lesser flamingo";
 		By birdLists = By.xpath("//select[@multiple]");
 		eUtils.doSelectByVisibleText(birdLists, "American flamingo");
 		eUtils.doSelectByVisibleText(birdLists, "Andean flamingo");

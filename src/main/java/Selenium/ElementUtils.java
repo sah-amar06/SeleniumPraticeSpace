@@ -580,4 +580,30 @@ public class ElementUtils {
 		throw new ElementException("Dropdown option not found: " + value);
 	}
 	
+	
+	
+	/**
+	 * Searches for the specified text and selects the matching suggestion.
+	 *
+	 * @param searchField Selenium locator of the search input field
+	 * @param searchText Text to enter into the search field
+	 * @param suggestionLocator Selenium locator of the suggestion list
+	 * @param targetText Text of the suggestion to select
+	 *
+	 * @throws IllegalArgumentException if any input is null or blank
+	 * @throws ElementException if the target suggestion is not found
+	 */
+	public void selectSuggestion(By searchField, String searchText, By suggestionLocator, String targetText) {
+		validateInput(targetText);
+		doSendKeys(searchField, searchText);
+		List<WebElement> suggestionLists = getElements(suggestionLocator);
+		for(WebElement elements:suggestionLists) {
+			String text = elements.getText().trim();
+			if(text.contains(targetText)) {
+				elements.click();
+				return;
+			}
+		}throw new ElementException("Suggestion not found: " +targetText);
+		
+	}
 }
