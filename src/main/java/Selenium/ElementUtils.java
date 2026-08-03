@@ -65,6 +65,12 @@ public class ElementUtils {
 		if (locator == null) {
 			throw new IllegalArgumentException("Locator cannot be null.");
 		}
+		
+		String locatorValue = locator.toString();
+
+		if (locatorValue.endsWith(": ")) {
+		    throw new IllegalArgumentException("Locator value cannot be empty.");
+		}
 	}
 
 	/**
@@ -90,7 +96,7 @@ public class ElementUtils {
 			WebElement element = driver.findElement(locator);
 			return element;
 		} catch (NoSuchElementException e) {
-			throw new ElementNotFoundException("Element not found on the page: " + locator, e);
+			throw new ElementNotFoundException("Element not found on the page: " + locator);
 		}
 
 	}
@@ -117,7 +123,7 @@ public class ElementUtils {
 	 *
 	 * @throws IllegalArgumentException if the locator is null
 	 */
-	public boolean isElementDisplayed(By locator) {
+	public boolean isElementPresent(By locator) {
 		validateLocator(locator);
 	    return !getElements(locator).isEmpty();
 	}
@@ -605,5 +611,48 @@ public class ElementUtils {
 			}
 		}throw new ElementException("Suggestion not found: " +targetText);
 		
+	}
+	
+	
+	/**
+	 * Checks whether the specified element is displayed.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @return true if the element is displayed
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public boolean isElementDisplayed(By locator) {
+		return getElement(locator).isDisplayed();
+	}
+	
+	/**
+	 * Checks whether the specified element is enabled.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @return true if the element is enabled; false otherwise
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public boolean isElementEnabled(By locator) {
+	    return getElement(locator).isEnabled();
+	}
+	
+	
+	/**
+	 * Checks whether the specified element is selected.
+	 *
+	 * Applicable to checkboxes, radio buttons, and options.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @return true if the element is selected; false otherwise
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public boolean isElementSelected(By locator) {
+	    return getElement(locator).isSelected();
 	}
 }

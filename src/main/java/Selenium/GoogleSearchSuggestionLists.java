@@ -17,7 +17,7 @@ public class GoogleSearchSuggestionLists {
 		
 		
 		Thread.sleep(3000);
-	//	List<WebElement> suggestionLists =driver.findElements(By.xpath("//ul[@role='listbox']//div[@class='wM6W7d']/span"));
+//	List<WebElement> suggestionLists =driver.findElements(By.xpath("//ul[@role='listbox']//div[@class='wM6W7d']/span"));
 		
 //		System.out.println(suggestionLists.size());
 //		
