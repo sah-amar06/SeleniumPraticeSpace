@@ -3,8 +3,10 @@ package Selenium;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -15,6 +17,11 @@ public class ElementUtils {
 
 	private WebDriver driver;
 	private JavascriptExecutor js;
+	
+	
+// =========================================================================================
+// 									Constructor
+// =========================================================================================
 
 	/**
 	 * Initializes the ElementUtils class with the WebDriver instance.
@@ -35,6 +42,10 @@ public class ElementUtils {
 		this.js = (JavascriptExecutor) driver;
 	}
 	
+	
+// =========================================================================================
+// 									Validation
+// =========================================================================================
 	
 	/**
 	 * Validates the input text before performing any element interaction.
@@ -73,6 +84,9 @@ public class ElementUtils {
 		}
 	}
 
+// =========================================================================================
+// 									Element Retrieval
+// =========================================================================================
 	/**
 	 * Locates and returns the web element identified by the given locator.
 	 *
@@ -115,6 +129,10 @@ public class ElementUtils {
 		return driver.findElements(locator);
 	}
 
+// =========================================================================================
+// 									Element Presence & Count
+// =========================================================================================
+	
 	/**
 	 * Checks whether the specified element is present and displayed.
 	 *
@@ -140,6 +158,10 @@ public class ElementUtils {
 		validateLocator(locator);
 	    return getElements(locator).size();
 	}
+	
+// =========================================================================================
+// 										Element Actions
+// =========================================================================================
 	
 	/**
 	 * Enters the specified text into the target web element.
@@ -177,62 +199,7 @@ public class ElementUtils {
 		WebElement element = getElement(locator);
 		element.click();
 	}
-
-	/**
-	 * Scrolls the page until the specified element is brought into the viewport.
-	 *
-	 * This method uses JavaScript scrollIntoView() to bring the target element to
-	 * the center of the visible page.
-	 *
-	 * @param locator Selenium locator used to identify the target element
-	 *
-	 * @throws IllegalArgumentException if the locator is null
-	 * @throws ElementNotFoundException if the element cannot be located
-	 */
-	public void scrollToElement(By locator) {
-		validateLocator(locator);
-
-		WebElement element = getElement(locator);
-		js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
-	}
 	
-	
-	/**
-	 * Clicks the specified element using JavaScript.
-	 *
-	 * This method is useful when a normal Selenium click()
-	 * fails due to intercepted or hidden element issues.
-	 *
-	 * @param locator Selenium locator of the target element
-	 *
-	 * @throws IllegalArgumentException if the locator is null
-	 * @throws ElementNotFoundException if the element cannot be located
-	 */
-	public void doJavaScriptClick(By locator) {
-	    try {
-	        js.executeScript("arguments[0].click();", getElement(locator));
-	    } catch (Exception e) {
-	        throw new ElementException("Unable to perform JavaScript click on: " + locator);
-	    }
-	}
-
-	/**
-	 * Retrieves the visible text of the specified web element.
-	 *
-	 * This method locates the target element and returns the text displayed to the
-	 * user.
-	 *
-	 * @param locator Selenium locator used to identify the target element
-	 * @return Visible text of the web element
-	 *
-	 * @throws IllegalArgumentException if the locator is null
-	 * @throws ElementNotFoundException if the element cannot be located
-	 */
-	public String doGetText(By locator) {
-		validateLocator(locator);
-		return getElement(locator).getText();
-	}
-
 	/**
 	 * Types the given text into a web element one character at a time with a
 	 * configurable delay.
@@ -283,6 +250,30 @@ public class ElementUtils {
 			}
 		}
 	}
+
+	
+// =========================================================================================
+// 										Element Information
+// =========================================================================================
+	
+	/**
+	 * Retrieves the visible text of the specified web element.
+	 *
+	 * This method locates the target element and returns the text displayed to the
+	 * user.
+	 *
+	 * @param locator Selenium locator used to identify the target element
+	 * @return Visible text of the web element
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public String doGetText(By locator) {
+		validateLocator(locator);
+		return getElement(locator).getText();
+	}
+
+
 
 	/**
 	 * Returns the value of the specified attribute from a web element.
@@ -349,6 +340,13 @@ public class ElementUtils {
 		}
 		return attributeValues;		
 	}
+	
+	
+// =========================================================================================
+// 									Dropdown Operations
+// =========================================================================================
+	
+	
 	
 	/**
 	 * Creates and returns a Select object for the specified dropdown element.
@@ -586,7 +584,9 @@ public class ElementUtils {
 		throw new ElementException("Dropdown option not found: " + value);
 	}
 	
-	
+// =========================================================================================
+// 										Suggestion / Auto-complete Operations
+// =========================================================================================	
 	
 	/**
 	 * Searches for the specified text and selects the matching suggestion.
@@ -613,6 +613,9 @@ public class ElementUtils {
 		
 	}
 	
+// ==========================================================================================
+// 								Element State
+// ==========================================================================================	
 	
 	/**
 	 * Checks whether the specified element is displayed.
@@ -655,4 +658,151 @@ public class ElementUtils {
 	public boolean isElementSelected(By locator) {
 	    return getElement(locator).isSelected();
 	}
+	
+	
+	
+// =============================================================================================
+// 									Alert Operations
+// =============================================================================================
+	
+	/**
+	 * Returns the currently displayed JavaScript alert.
+	 *
+	 * Centralizes alert retrieval and throws a custom exception
+	 * if no alert is present.
+	 *
+	 * @return Active Alert instance
+	 *
+	 * @throws ElementException if no alert is currently displayed
+	 */
+	private Alert getAlert() {
+	    try {
+	        return driver.switchTo().alert();
+	    } catch (NoAlertPresentException e) {
+	        throw new ElementException("No alert is currently present.", e);
+	    }
+	}
+	
+	/**
+	 * Checks whether a JavaScript alert is currently displayed.
+	 *
+	 * @return  true if an alert is present; false otherwise
+	 */
+	public boolean isAlertPresent() {
+	    try {
+	        driver.switchTo().alert();
+	        return true;
+	    } catch (NoAlertPresentException e) {
+	        return false;
+	    }
+	}
+	
+	
+	/**
+	 * Accepts the currently displayed JavaScript alert.
+	 *
+	 * @throws ElementException if no alert is currently present
+	 */
+	public void acceptAlert() {
+		getAlert().accept();
+	}
+	
+	
+	/**
+	 * Dismisses the currently displayed JavaScript alert.
+	 *
+	 * @throws ElementException if no alert is currently present
+	 */
+	public void dismissAlert() {
+		getAlert().dismiss();
+	}
+	
+	
+	/**
+	 * Retrieves the text displayed in the current JavaScript alert.
+	 *
+	 * @return Alert message text
+	 *
+	 * @throws ElementException if no alert is currently present
+	 */
+	public String getAlertText() {
+	    return getAlert().getText();
+	}
+	
+	
+	/**
+	 * Enters the specified text into a JavaScript prompt alert and accepts it.
+	 *
+	 * @param value Text to enter into the alert
+	 *
+	 * @throws IllegalArgumentException if the input value is null or blank
+	 * @throws ElementException if no alert is currently present
+	 */
+	public void sendValueAndAccept(String value) {
+		validateInput(value);
+		Alert alert = getAlert();
+		alert.sendKeys(value);
+		alert.accept();
+	}
+	
+	
+	/**
+	 * Enters the specified text into a JavaScript prompt alert and dismisses it.
+	 *
+	 * @param value Text to enter into the alert
+	 *
+	 * @throws IllegalArgumentException if the input value is null or blank
+	 * @throws ElementException if no alert is currently present
+	 */
+	public void sendValueAndDismiss(String value) {
+		validateInput(value);
+		Alert alert = getAlert();
+		alert.sendKeys(value);
+		alert.dismiss();
+	}
+	
+	
+// ========================================================================================
+// 										JavaScript Operations
+// ========================================================================================
+	
+	/**
+	 * Scrolls the page until the specified element is brought into the viewport.
+	 *
+	 * This method uses JavaScript scrollIntoView() to bring the target element to
+	 * the center of the visible page.
+	 *
+	 * @param locator Selenium locator used to identify the target element
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public void scrollToElement(By locator) {
+		validateLocator(locator);
+
+		WebElement element = getElement(locator);
+		js.executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
+	}
+	
+	
+	/**
+	 * Clicks the specified element using JavaScript.
+	 *
+	 * This method is useful when a normal Selenium click()
+	 * fails due to intercepted or hidden element issues.
+	 *
+	 * @param locator Selenium locator of the target element
+	 *
+	 * @throws IllegalArgumentException if the locator is null
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public void doJavaScriptClick(By locator) {
+	    try {
+	        js.executeScript("arguments[0].click();", getElement(locator));
+	    } catch (Exception e) {
+	        throw new ElementException("Unable to perform JavaScript click on: " + locator);
+	    }
+	}
+
+	
 }
