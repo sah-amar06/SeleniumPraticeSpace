@@ -47,6 +47,7 @@ public class TestJSAlerts {
 		
 		eUtils.doClick(jsPromptBtn);
 		Thread.sleep(2000);
+		System.out.println(eUtils.getAlertText());
 		eUtils.sendValueAndDismiss("Hello");
 		printAlertResult(eUtils, result);
 		
