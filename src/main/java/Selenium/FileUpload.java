@@ -15,7 +15,7 @@ public class FileUpload {
 		By upload = By.id("file-upload");
 		ElementUtils eUtils = new ElementUtils(driver);
 		eUtils.doSendKeys(upload, "/Users/amaranthsah/Downloads/krishna 🚩.jpeg");
-		
+		brUtils.quitBrowser();
 	}
 
 }
