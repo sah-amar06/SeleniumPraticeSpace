@@ -1,5 +1,6 @@
 package Selenium;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +11,10 @@ import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class ElementUtils {
 
@@ -199,6 +202,30 @@ public class ElementUtils {
 		WebElement element = getElement(locator);
 		element.click();
 	}
+	
+	
+	/**
+	 * Waits until the specified element becomes clickable and then clicks it.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @param timeout Maximum wait time in seconds
+	 *
+	 * @throws IllegalArgumentException if the locator is null or the timeout is less than or equal to zero
+	 * @throws TimeoutException if the element does not become clickable within the specified timeout
+	 * @throws ElementClickInterceptedException if the element cannot be clicked
+	 */
+	public void doClickWithWait(By locator, int timeout) {
+	    validateLocator(locator);
+
+	    if (timeout <= 0) {
+	        throw new IllegalArgumentException("Timeout must be greater than zero.");
+	    }
+
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
+	    wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+	}
+	
+	
 	
 	/**
 	 * Types the given text into a web element one character at a time with a
@@ -802,9 +829,6 @@ public class ElementUtils {
 	    } catch (Exception e) {
 	        throw new ElementException("Unable to perform JavaScript click on: " + locator);
 	    }
+	    	    
 	}
-
-	
-	
-	
 }
