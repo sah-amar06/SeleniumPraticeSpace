@@ -17,27 +17,29 @@ public class XPathAndOrOperators {
 		ElementUtils eUtil = new ElementUtils(driver);
 		By mobile = By.xpath("//a[text()='Mobiles']");
 		eUtil.doClickWithWait(mobile, 10);
+		String price1 = "22,999";
+		String price2 = "18,999";
 		By smartphones = By.xpath("//span[text()='Smartphones & Basic Mobiles']");
 		eUtil.doClick(smartphones);
 		By seeAllResults = By.xpath("//span[text()='See all results']");
 		eUtil.doClick(seeAllResults);
-		By productPrice = By.xpath("//span[text()='22,999' or text()='18,999']");
+		By productPrice = By.xpath("//span[text()='"+price1+"' or text()='"+price2+"']");
 		List<WebElement> productList = eUtil.getElements(productPrice);
-		System.out.println("Total number of phones having price 22,999 and 18,999: " +productList.size());
+		System.out.println("Total number of phones having price "+price1+" and "+price2+": " +productList.size());
 		
 		int count1=0, count2=0;
 		for(WebElement price:productList) {
 			String phonePrice = price.getText();
 			
-			if(phonePrice.equals("22,999")) {
+			if(phonePrice.equals(price1)) {
 				count1++;
 			}else {
 				count2++;
 			}
 			
 		}
-		System.out.println("Total phones having price 22,999: " +count1);
-		System.out.println("Total phones having price 18,999: " +count2);
+		System.out.println("Total phones having price "+price1+": " +count1);
+		System.out.println("Total phones having price "+price2+": " +count2);
 		
 		By mobilePrice = By.xpath("//span[@class='a-price-whole']");
 		List<WebElement> price = eUtil.getElements(mobilePrice);
