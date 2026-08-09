@@ -831,4 +831,75 @@ public class ElementUtils {
 	    }
 	    	    
 	}
+	
+// ========================================================================================
+//								 Frame Operations
+//=========================================================================================
+	
+	
+	/**
+	 * Switches the WebDriver context to a frame using its index.
+	 *
+	 * @param index Zero-based index of the frame
+	 *
+	 * @throws IllegalArgumentException if the index is negative
+	 * @throws NoSuchFrameException if the frame cannot be found
+	 */
+	public void doSwitchToFrame(int index) {
+		if(index<0) {
+			throw new IllegalArgumentException("Frame index cannot be negative");
+		}
+		driver.switchTo().frame(index);
+	}
+	
+	
+	/**
+	 * Switches the WebDriver context to a frame using its name or ID.
+	 *
+	 * @param frameName Name or ID attribute of the frame
+	 *
+	 * @throws IllegalArgumentException if the frame name is null or blank
+	 * @throws NoSuchFrameException if the frame cannot be found
+	 */
+	public void doSwitchToFrame(String frameName) {
+		driver.switchTo().frame(frameName);
+	}
+	
+	
+	/**
+	 * Switches the WebDriver context to a frame using its locator.
+	 *
+	 * @param locator Selenium locator used to identify the frame
+	 *
+	 * @throws IllegalArgumentException if the locator is null or invalid
+	 * @throws ElementNotFoundException if the frame cannot be located
+	 * @throws NoSuchFrameException if the located element is not a valid frame
+	 */
+	public void doSwitchToFrame(By locator) {
+		driver.switchTo().frame(getElement(locator));
+	}
+	
+	
+	/**
+	 * Switches the WebDriver context back to the main document.
+	 *
+	 * This method exits all nested frames and returns the driver context
+	 * to the top-level document.
+	 */
+	public void doSwitchToDefaultContent() {
+		driver.switchTo().defaultContent();
+	}
+	
+	
+	/**
+	 * Switches the WebDriver context from the current frame to its parent frame.
+	 *
+	 * This method is primarily used when working with nested frames.
+	 * It moves the driver one level up in the frame hierarchy.
+	 *
+	 * @throws NoSuchFrameException if the parent frame cannot be accessed
+	 */
+	public void doSwitchToParentFrame() {
+		driver.switchTo().parentFrame();
+	}
 }
