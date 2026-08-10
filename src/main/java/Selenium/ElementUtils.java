@@ -11,6 +11,7 @@ import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
@@ -20,7 +21,7 @@ public class ElementUtils {
 
 	private WebDriver driver;
 	private JavascriptExecutor js;
-	
+	private Actions action;
 	
 // =========================================================================================
 // 									Constructor
@@ -43,6 +44,7 @@ public class ElementUtils {
 		}
 		this.driver = driver;
 		this.js = (JavascriptExecutor) driver;
+		this.action = new Actions(driver);
 	}
 	
 	
@@ -901,5 +903,94 @@ public class ElementUtils {
 	 */
 	public void doSwitchToParentFrame() {
 		driver.switchTo().parentFrame();
+	}
+	
+	
+// ========================================================================================
+//	 							Actions Class 
+//=========================================================================================
+
+	
+	/**
+	 * Hovers over a parent menu item and clicks the specified submenu item.
+	 *
+	 * The method moves the mouse pointer over the parent element using
+	 * Selenium Actions, allowing the submenu to become visible, and then
+	 * waits for the child element to become clickable before clicking it.
+	 *
+	 * @param parentLocator Selenium locator of the parent menu element
+	 * @param childLocator Selenium locator of the submenu element
+	 * @param timeOut Maximum time in seconds to wait for the submenu
+	 *
+	 * @throws IllegalArgumentException if either locator is invalid or
+	 *                                  timeout is less than or equal to zero
+	 * @throws ElementNotFoundException if the parent element cannot be located
+	 */
+	
+	
+// ** Method Flow **
+	
+//		Parent menu
+// 		   ↓
+//		moveToElement()
+// 		   ↓
+//		Submenu becomes visible
+//   		 ↓
+//		doClickWithWait()
+//  		  ↓
+//		Click submenu
+	
+	public void handleParentSubMenu(By parentLocator, By childLocator, int timeOut) {	
+		validateLocator(parentLocator);
+		validateLocator(childLocator);
+		
+		if(timeOut<=0) {
+			throw new IllegalArgumentException("Timeout must be greater than zero.");
+		}
+		action.moveToElement(getElement(parentLocator)).perform();
+		doClickWithWait(childLocator, timeOut);
+	}
+	
+	
+	
+	/**
+	 * Drags an element from the source location and drops it onto the target element.
+	 *
+	 * This method uses Selenium's Actions class to perform the drag-and-drop
+	 * operation by clicking and holding the source element, moving it to the
+	 * target element, and releasing the mouse button.
+	 *
+	 * @param sourceLocator Selenium locator of the element to drag
+	 * @param targetLocator Selenium locator of the element where the source
+	 *                      element should be dropped
+	 *
+	 * @throws IllegalArgumentException if either locator is null or invalid
+	 * @throws ElementNotFoundException if either the source or target element
+	 *                                  cannot be located
+	 */
+	
+	
+// **     Method Flow    **	
+	
+//		Source element
+// 		   ↓
+//		clickAndHold()
+// 		   ↓
+//		Move mouse to target
+// 		   ↓
+//		moveToElement()
+// 		   ↓
+//		Release mouse
+//		    ↓
+//		perform()
+	public void doDragAndDrop(By sourceLocator, By targetLocator) {
+		validateLocator(sourceLocator);
+		validateLocator(targetLocator);
+		
+		action
+			.clickAndHold(getElement(sourceLocator))
+				.moveToElement(getElement(targetLocator))
+					.release()
+						.perform();
 	}
 }
