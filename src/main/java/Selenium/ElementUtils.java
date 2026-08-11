@@ -1051,4 +1051,66 @@ public class ElementUtils {
 		validateLocator(locator);
 		action.contextClick(getElement(locator)).perform();
 	}
+	
+	
+	/**
+	 * Sends the specified text to the target web element using Selenium's
+	 * Actions class.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @param value Text to be entered
+	 *
+	 * @throws IllegalArgumentException if the locator or value is null/blank
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public void doActionsSendKeys(By locator, String value) {
+		validateLocator(locator);
+		validateInput(value);
+		action.sendKeys(getElement(locator), value).perform();
+	}
+	
+	
+	/**
+	 * Clicks the specified web element using Selenium's Actions class.
+	 *
+	 * @param locator Selenium locator of the target element
+	 *
+	 * @throws IllegalArgumentException if the locator is null or invalid
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public void doActionsClick(By locator) {
+		validateLocator(locator);
+		action.click(getElement(locator)).perform();
+	}
+	
+	
+	/**
+	 * Types the specified text character by character using Selenium's
+	 * Actions class, pausing for the specified duration after each character.
+	 *
+	 * @param locator     Selenium locator of the target element
+	 * @param value       Text to be entered
+	 * @param milliseconds Pause duration in milliseconds between characters
+	 *
+	 * @throws IllegalArgumentException if the locator is invalid, the value is
+	 *                                  null/blank, or milliseconds is less than
+	 *                                  or equal to zero
+	 * @throws ElementNotFoundException if the target element cannot be located
+	 */
+	public void doActionsSendKeysWithPause(By locator, String value, int miliSeconds) {
+		validateLocator(locator);
+		validateInput(value);
+		if(miliSeconds<=0) {
+			throw new IllegalArgumentException("Timeout value should be more than zero");
+		}		
+		WebElement element = getElement(locator);
+		char[] ch = value.toCharArray();	
+		for(char c:ch) {
+			action
+				.sendKeys(element, String.valueOf(c))
+					.pause(Duration.ofMillis(miliSeconds));						
+			}
+		action.perform();
+	}
+		
 }
