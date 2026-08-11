@@ -5,7 +5,6 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 
 public class RightClickConcept {
 
@@ -18,10 +17,6 @@ public class RightClickConcept {
 		brUtils.launchURL("https://swisnl.github.io/jQuery-contextMenu/demo.html");
 		ElementUtils eUtils = new ElementUtils(driver);
 		By rightClick = By.cssSelector("span.context-menu-one");
-		
-		Actions action = new Actions(driver);
-		
-		//action.contextClick(eUtils.getElement(rightClick)).perform();
 		eUtils.rightClick(rightClick);
 		By dropdownList = By.cssSelector("ul.context-menu-list>li.context-menu-icon>span");
 		List<WebElement> lists = eUtils.getElements(dropdownList);
