@@ -983,7 +983,7 @@ public class ElementUtils {
 //		Release mouse
 //		    ↓
 //		perform()
-	public void doDragAndDrop(By sourceLocator, By targetLocator) {
+	public void doDragAndDropByActions(By sourceLocator, By targetLocator) {
 		validateLocator(sourceLocator);
 		validateLocator(targetLocator);
 		
@@ -992,5 +992,63 @@ public class ElementUtils {
 				.moveToElement(getElement(targetLocator))
 					.release()
 						.perform();
+	}
+	
+	
+	/**
+	 * Drags an element from the source location and drops it onto the target element.
+	 *
+	 * This method uses Selenium's built-in Actions.dragAndDrop() method to
+	 * perform the drag-and-drop operation.
+	 *
+	 * Both the source and target elements must be accessible within the
+	 * current WebDriver browsing context. If either element is inside an
+	 * iframe, the driver must first be switched to the appropriate frame
+	 * before calling this method.
+	 *
+	 * @param sourceLocator Selenium locator of the element to be dragged
+	 * @param targetLocator Selenium locator of the target element where the
+	 *                      source element should be dropped
+	 *
+	 * @throws IllegalArgumentException if either locator is null or invalid
+	 * @throws ElementNotFoundException if the source or target element cannot
+	 *                                  be located in the current browsing context
+	 *
+	 * @implNote This method may not work reliably with applications that
+	 *           implement custom JavaScript-based drag-and-drop behavior.
+	 *           In such cases, an explicit Actions sequence using
+	 *           clickAndHold(), moveToElement(), and release() may be more
+	 *           appropriate.
+	 */
+	
+	//The utility uses Selenium's built-in Actions.dragAndDrop() 
+	//and works when both elements are accessible in the same browsing context. 
+	//If the elements are inside different iframes, I cannot simply switch between the frames
+	//during the same drag operation because Selenium maintains one current browsing context. 
+	//Other challenges include custom JavaScript or HTML5 drag-and-drop implementations, 
+	//elements being outside the viewport, overlays intercepting the interaction, and elements not being interactable.
+	public void doDragAndDrop(By sourceLocator, By targetLocator) {
+		validateLocator(sourceLocator);
+		validateLocator(targetLocator);
+		
+		action.dragAndDrop(getElement(sourceLocator), getElement(targetLocator)).perform();
+	}
+	
+	
+	/**
+	 * Performs a right-click (context click) on the specified web element.
+	 *
+	 * This method locates the target element using the provided locator and
+	 * performs a context-click using Selenium's Actions class.
+	 *
+	 * @param locator Selenium locator of the element on which the right-click
+	 *                should be performed
+	 *
+	 * @throws IllegalArgumentException if the locator is null or invalid
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public void rightClick(By locator) {
+		validateLocator(locator);
+		action.contextClick(getElement(locator)).perform();
 	}
 }
