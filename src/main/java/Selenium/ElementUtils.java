@@ -1112,5 +1112,19 @@ public class ElementUtils {
 			}
 		action.perform();
 	}
+	
+	public void doMoveToElement(By locator) {
+		validateLocator(locator);
+		action.moveToElement(getElement(locator)).perform();
+	}
+	
+	public void doMoveToElement(By locator, int pauseSeconds) {
+		if(pauseSeconds<=0) {
+			throw new IllegalArgumentException("Timeout value should be greater than zero:" +pauseSeconds);
+		}		
+		action.moveToElement(getElement(locator))
+			.pause(Duration.ofSeconds(pauseSeconds))
+				.perform();
+	}
 		
 }
