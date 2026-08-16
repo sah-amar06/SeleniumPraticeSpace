@@ -1113,18 +1113,79 @@ public class ElementUtils {
 		action.perform();
 	}
 	
+	
+	/**
+	 * Moves the mouse pointer to the specified web element.
+	 *
+	 * @param locator Selenium locator of the target element
+	 *
+	 * @throws IllegalArgumentException if the locator is null or invalid
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
 	public void doMoveToElement(By locator) {
 		validateLocator(locator);
 		action.moveToElement(getElement(locator)).perform();
 	}
 	
+	
+	/**
+	 * Moves the mouse pointer to the specified web element and pauses
+	 * for the specified duration.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @param pauseSeconds duration to pause after moving to the element
+	 *
+	 * @throws IllegalArgumentException if the locator is null or invalid,
+	 *                                  or pauseSeconds is less than or equal to zero
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
 	public void doMoveToElement(By locator, int pauseSeconds) {
 		if(pauseSeconds<=0) {
-			throw new IllegalArgumentException("Timeout value should be greater than zero:" +pauseSeconds);
+			throw new IllegalArgumentException("Pause duration must be greater than zero: " + pauseSeconds);
 		}		
 		action.moveToElement(getElement(locator))
 			.pause(Duration.ofSeconds(pauseSeconds))
 				.perform();
 	}
+	
+	
+	/**
+	 * Scrolls the page until the specified element is brought into view.
+	 *
+	 * @param locator Selenium locator of the target element
+	 *
+	 * @throws IllegalArgumentException if the locator is null or invalid
+	 * @throws ElementNotFoundException if the element cannot be located
+	 */
+	public void scrollToElementActions(By locator) {
+		validateLocator(locator);
 		
+		action.scrollToElement(getElement(locator)).perform();
+	}
+	
+	
+	/**
+	 * Waits for an element to become visible, scrolls to it, and clicks it
+	 * using Selenium Actions.
+	 *
+	 * @param locator Selenium locator of the target element
+	 * @param timeoutSeconds maximum time to wait for the element
+	 *
+	 * @throws IllegalArgumentException if the locator is invalid or
+	 *                                  timeoutSeconds is less than or equal to zero
+	 * @throws TimeoutException if the element does not become visible
+	 */
+	public void scrollToElementAndClickActions(By locator, int timeoutSeconds) {
+		validateLocator(locator);
+		
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		WebElement element = myWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		action
+		.scrollToElement(element)
+		.click(element)
+		.perform();
+	}		
 }

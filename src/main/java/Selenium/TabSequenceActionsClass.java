@@ -1,5 +1,7 @@
 package Selenium;
 
+import java.time.Duration;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -22,7 +24,7 @@ public class TabSequenceActionsClass {
 			.pause(2000)
 				.sendKeys(Keys.TAB)
 					.sendKeys("Sah")
-						.pause(2000)
+						.pause(Duration.ofSeconds(2))
 							.sendKeys(Keys.TAB)
 								.sendKeys("test12@test.com")
 									.pause(2000)
