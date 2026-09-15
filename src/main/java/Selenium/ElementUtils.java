@@ -2,7 +2,9 @@ package Selenium;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -22,6 +24,7 @@ public class ElementUtils {
 	private WebDriver driver;
 	private JavascriptExecutor js;
 	private Actions action;
+	BrowserUtils brUtils = new BrowserUtils();
 	
 // =========================================================================================
 // 									Constructor
@@ -1187,5 +1190,86 @@ public class ElementUtils {
 		.scrollToElement(element)
 		.click(element)
 		.perform();
-	}		
+	}
+	
+	/**
+	 * Clicks the specified element, switches to the newly opened child window,
+	 * closes the child window, and switches back to the parent window.
+	 *
+	 * This method is intended for scenarios where clicking an element opens
+	 * exactly one additional browser window or tab.
+	 *
+	 * @param locator Selenium locator of the element that opens the child window
+	 *
+	 * @throws IllegalArgumentException if the locator is null or invalid
+	 * @throws ElementNotFoundException if the element cannot be located
+	 * @throws ElementException if no child window is opened
+	 */
+	public void switchToChildWindow(By locator) {
+
+	    validateLocator(locator);
+
+	    String parentWindow = driver.getWindowHandle();
+
+	    doJavaScriptClick(locator);
+
+	    Set<String> windows = driver.getWindowHandles();
+
+	    for (String window : windows) {
+
+	        if (!window.equals(parentWindow)) {
+	            driver.switchTo().window(window);
+
+	            System.out.println("Child Window: " + driver.getTitle());
+
+	            driver.close();
+
+	            driver.switchTo().window(parentWindow);
+	            return;
+	        }
+	    }
+
+	    throw new ElementException("No child window was opened.");
+	}
+	
+	
+	/**
+	 * Returns the unique handle of the currently active browser window.
+	 *
+	 * This method centralizes window-handle retrieval so that window
+	 * management logic remains encapsulated within the browser utility layer.
+	 *
+	 * @return unique handle of the currently active browser window
+	 */
+	public String getCurrentWindowHandle() {
+	    return driver.getWindowHandle();
+	}
+	
+	/**
+	 * Returns the unique handles of all currently open browser windows or tabs.
+	 *
+	 * The returned window handles can be used with to switch between
+	 * different browser windows or tabs.
+	 *
+	 * @return set containing the handles of all currently open browser windows
+	 *         or tabs
+	 */
+	public Set<String> getAllWindowHandles() {
+	    return driver.getWindowHandles();
+	}
+	
+	
+	/**
+	 * Switches the WebDriver context to the browser window or tab
+	 * identified by the specified window handle.
+	 *
+	 * @param windowHandle unique handle of the target browser window or tab
+	 *
+	 * @throws IllegalArgumentException if the window handle is null or blank
+	 */
+	public void switchWindow(String windowHandle) {
+	    validateInput(windowHandle);
+	    driver.switchTo().window(windowHandle);
+	}
+	
 }
