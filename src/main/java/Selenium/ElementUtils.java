@@ -2,7 +2,6 @@ package Selenium;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +12,7 @@ import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WindowType;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -1192,6 +1192,11 @@ public class ElementUtils {
 		.perform();
 	}
 	
+// ========================================================================================
+//		 Window / Tab Management
+//=========================================================================================
+
+	
 	/**
 	 * Clicks the specified element, switches to the newly opened child window,
 	 * closes the child window, and switches back to the parent window.
@@ -1270,6 +1275,26 @@ public class ElementUtils {
 	public void switchWindow(String windowHandle) {
 	    validateInput(windowHandle);
 	    driver.switchTo().window(windowHandle);
+	}
+	
+	/**
+	 * Opens a new browser window and automatically switches the WebDriver
+	 * context to the newly created window.
+	 *
+	 * This method uses the Selenium 4 API to create a new top-level browser window.
+	 */
+	public void openNewWindow() {
+	    driver.switchTo().newWindow(WindowType.WINDOW);
+	}
+
+	/**
+	 * Opens a new browser tab and automatically switches the WebDriver
+	 * context to the newly created tab.
+	 *
+	 * This method uses the Selenium 4 API to create a new top-level browser tab.
+	 */
+	public void openNewTab() {
+	    driver.switchTo().newWindow(WindowType.TAB);
 	}
 	
 }

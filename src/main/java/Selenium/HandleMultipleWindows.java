@@ -35,9 +35,7 @@ public class HandleMultipleWindows {
 		Set<String> winIds = eUtils.getAllWindowHandles();
 		Iterator<String> ids = winIds.iterator();
 		while(ids.hasNext()) {
-			String windIds = ids.next();
-			
-			
+			String windIds = ids.next();			
 			if(!windIds.equals(parentWindow)) {
 				eUtils.switchWindow(windIds);
 				System.out.println(brUtils.getPageTitle());
