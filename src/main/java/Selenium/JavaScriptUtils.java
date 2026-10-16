@@ -21,8 +21,7 @@ public class JavaScriptUtils {
 	 *
 	 * @param driver WebDriver instance used to interact with the browser
 	 *
-	 * @throws IllegalArgumentException if the WebDriver is null
-	 *                                  or does not support JavascriptExecutor
+	 * @throws IllegalArgumentException if the WebDriver is null or does not support JavascriptExecutor
 	 */
 	public JavaScriptUtils(WebDriver driver) {
 

@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -19,11 +20,13 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+
 public class ElementUtils {
 
 	private WebDriver driver;
 	private JavascriptExecutor js;
 	private Actions action;
+	private WebDriverWait myWait;
 	BrowserUtils brUtils = new BrowserUtils();
 	
 // =========================================================================================
@@ -1295,6 +1298,199 @@ public class ElementUtils {
 	 */
 	public void openNewTab() {
 	    driver.switchTo().newWindow(WindowType.TAB);
+	}
+	
+// ========================================================================================
+//	 			Wait Mechanism
+//=========================================================================================
+
+	/**
+	 * Waits until the specified element is present in the DOM. 
+	 * This method waits for the element to be located in the DOM 
+	 * but does not verify whether the element is visible or interactable.
+	 *
+	 * This method waits for the element to be located in the DOM but does
+	 * not verify whether the element is visible or interactable.
+	 *
+	 * @param locator used to identify the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return WebElement once the element is present in the DOM
+	 */
+	public WebElement doWaitForTheElementPresence(By locator, int timeoutSeconds) {
+		validateLocator(locator);
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		myWait= new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		return myWait.until(ExpectedConditions.presenceOfElementLocated(locator));
+	}
+	
+	
+	/**
+	 * Waits until the specified element is visible on the page. 
+	 * Visibility means that the element is present in the DOM 
+	 * and has a height and width greater than zero.
+	 *
+	 * @param locator used to identify the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return WebElement once the element is visible
+	 */
+	public WebElement doWaitForTheElementVisible(By locator, int timeoutSeconds) {
+		validateLocator(locator);
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		return myWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
+	
+	
+	/**
+	 * Waits until the specified element is clickable and clicks the element.
+	 *
+	 * The element must be visible and enabled before the click operation
+	 * is performed.
+	 *
+	 * @param locator used to identify the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 */
+	public void clickWhenReady(By locator, int timeoutSeconds) {
+		validateLocator(locator);
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		myWait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+	}
+	
+	
+	/**
+	 * Waits until the browser page title contains the specified text.
+	 *
+	 * @param partialTitle text expected to be present in the page title
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return the current page title when it contains the specified text
+	 * @throws IllegalArgumentException if partialTitle is null or blank,
+	 *         or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the page title does not
+	 *         contain the specified text within the timeout
+	 */
+	public String waitForTitleContains(String partialTitle, int timeoutSeconds) {		
+		if (partialTitle == null || partialTitle.isBlank()) {
+	        throw new IllegalArgumentException("Partial title cannot be null or blank");
+	    }
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		myWait.until(ExpectedConditions.titleContains(partialTitle));
+		return driver.getTitle();	
+	}
+	
+	
+	/**
+	 * Waits until the browser page title exactly matches the specified text.
+	 *
+	 * @param title exact title expected for the current page
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return the current page title when it exactly matches the specified text
+	 * @throws IllegalArgumentException if title is null or blank,
+	 *         or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the page title does not
+	 *         exactly match the specified text within the timeout
+	 */
+	public String waitForTitleIs(String title, int timeoutSeconds) {
+		if (title == null || title.isBlank()) {
+	        throw new IllegalArgumentException("Title cannot be null or blank");
+	    }
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		myWait.until(ExpectedConditions.titleIs(title));
+		return driver.getTitle();
+	}
+	
+	/**
+	 * Waits until the current browser URL contains the specified text.
+	 *
+	 * @param urlValue partial URL expected to be present in the current URL
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return the current URL when it contains the specified text
+	 * @throws IllegalArgumentException if urlValue is null or blank,
+	 *         or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the current URL does not
+	 *         contain the specified text within the timeout
+	 */
+	public String waitForUrlContains(String urlValue, int timeoutSeconds) {
+		if (urlValue == null || urlValue.isBlank()) {
+	        throw new IllegalArgumentException("URL value cannot be null or blank");
+	    }
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		myWait.until(ExpectedConditions.urlContains(urlValue));
+		return driver.getCurrentUrl();
+	}
+	
+	/**
+	 * Waits until the current browser URL exactly matches the specified URL.
+	 *
+	 * @param urlValue exact URL expected for the current page
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return the current URL when it exactly matches the specified URL
+	 * @throws IllegalArgumentException if urlValue is null or blank,
+	 *         or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the current URL does not
+	 *         exactly match the specified URL within the timeout
+	 */
+	public String waitForUrlToBe(String urlValue, int timeoutSeconds) {
+		if (urlValue == null || urlValue.isBlank()) {
+	        throw new IllegalArgumentException("URL value cannot be null or blank");
+	    }
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		myWait.until(ExpectedConditions.urlToBe(urlValue));
+		return driver.getCurrentUrl();
+	}
+	
+	
+	
+// ========================================================================================
+//		Overloaded Methods
+//=========================================================================================
+
+	/**
+	 * Waits until the specified element is visible and clicks the element.
+	 *
+	 * @param locator locator used to identify the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 */
+	public void doClick(By locator, int timeoutSeconds) {
+		validateLocator(locator);
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		doWaitForTheElementVisible(locator, timeoutSeconds).click();
+	}
+		
+	/**
+	 * Waits until the specified element is visible and enters the provided
+	 * value into the element.
+	 *
+	 * @param locator locator used to identify the element
+	 * @param value text to enter into the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 */
+	public void doSendKeys(By locator, String value, int timeoutSeconds) {
+		validateLocator(locator);
+		if(timeoutSeconds<=0) {
+			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
+		}
+		doWaitForTheElementVisible(locator, timeoutSeconds).sendKeys(value);		
 	}
 	
 }
