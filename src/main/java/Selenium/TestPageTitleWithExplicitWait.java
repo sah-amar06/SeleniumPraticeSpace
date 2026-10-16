@@ -22,7 +22,8 @@ public class TestPageTitleWithExplicitWait {
 		eUtils.doJavaScriptClick(sell);
 		String title = eUtils.waitForTitleContains("Selling", 10);
 		System.out.println(title);
-				
+		
+		
 	}
 
 }
