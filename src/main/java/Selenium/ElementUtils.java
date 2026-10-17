@@ -94,6 +94,19 @@ public class ElementUtils {
 		    throw new IllegalArgumentException("Locator value cannot be empty.");
 		}
 	}
+	
+	/**
+	 * Validates that the specified timeout is greater than zero.
+	 *
+	 * @param timeoutSeconds timeout value in seconds
+	 * @throws IllegalArgumentException if timeoutSeconds is less than or equal to zero
+	 */
+	private void validateTimeout(int timeoutSeconds) {
+	    if (timeoutSeconds <= 0) {
+	        throw new IllegalArgumentException(
+	                "Timeout must be greater than zero: " + timeoutSeconds);
+	    }
+	}
 
 // =========================================================================================
 // 									Element Retrieval
@@ -855,7 +868,7 @@ public class ElementUtils {
 	 */
 	public void doSwitchToFrame(int index) {
 		if(index<0) {
-			throw new IllegalArgumentException("Frame index cannot be negative");
+			throw new IllegalArgumentException("Frame index must be greater than zero: " +index);
 		}
 		driver.switchTo().frame(index);
 	}
@@ -870,6 +883,7 @@ public class ElementUtils {
 	 * @throws NoSuchFrameException if the frame cannot be found
 	 */
 	public void doSwitchToFrame(String frameName) {
+		validateInput(frameName);
 		driver.switchTo().frame(frameName);
 	}
 	
@@ -884,6 +898,7 @@ public class ElementUtils {
 	 * @throws NoSuchFrameException if the located element is not a valid frame
 	 */
 	public void doSwitchToFrame(By locator) {
+		validateLocator(locator);
 		driver.switchTo().frame(getElement(locator));
 	}
 	
@@ -949,10 +964,7 @@ public class ElementUtils {
 	public void handleParentSubMenu(By parentLocator, By childLocator, int timeOut) {	
 		validateLocator(parentLocator);
 		validateLocator(childLocator);
-		
-		if(timeOut<=0) {
-			throw new IllegalArgumentException("Timeout must be greater than zero.");
-		}
+		validateTimeout(timeOut);
 		action.moveToElement(getElement(parentLocator)).perform();
 		doClickWithWait(childLocator, timeOut);
 	}
@@ -1103,18 +1115,16 @@ public class ElementUtils {
 	 *                                  or equal to zero
 	 * @throws ElementNotFoundException if the target element cannot be located
 	 */
-	public void doActionsSendKeysWithPause(By locator, String value, int miliSeconds) {
+	public void doActionsSendKeysWithPause(By locator, String value, int timeoutMiliSeconds) {
 		validateLocator(locator);
 		validateInput(value);
-		if(miliSeconds<=0) {
-			throw new IllegalArgumentException("Timeout value should be more than zero");
-		}		
+		validateTimeout(timeoutMiliSeconds);		
 		WebElement element = getElement(locator);
 		char[] ch = value.toCharArray();	
 		for(char c:ch) {
 			action
 				.sendKeys(element, String.valueOf(c))
-					.pause(Duration.ofMillis(miliSeconds));						
+					.pause(Duration.ofMillis(timeoutMiliSeconds));						
 			}
 		action.perform();
 	}
@@ -1146,9 +1156,8 @@ public class ElementUtils {
 	 * @throws ElementNotFoundException if the element cannot be located
 	 */
 	public void doMoveToElement(By locator, int pauseSeconds) {
-		if(pauseSeconds<=0) {
-			throw new IllegalArgumentException("Pause duration must be greater than zero: " + pauseSeconds);
-		}		
+		validateLocator(locator);
+		validateTimeout(pauseSeconds);		
 		action.moveToElement(getElement(locator))
 			.pause(Duration.ofSeconds(pauseSeconds))
 				.perform();
@@ -1184,9 +1193,7 @@ public class ElementUtils {
 	public void scrollToElementAndClickActions(By locator, int timeoutSeconds) {
 		validateLocator(locator);
 		
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		WebElement element = myWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 		action
@@ -1318,9 +1325,7 @@ public class ElementUtils {
 	 */
 	public WebElement doWaitForTheElementPresence(By locator, int timeoutSeconds) {
 		validateLocator(locator);
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		myWait= new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		return myWait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
@@ -1337,9 +1342,7 @@ public class ElementUtils {
 	 */
 	public WebElement doWaitForTheElementVisible(By locator, int timeoutSeconds) {
 		validateLocator(locator);
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		return myWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
@@ -1349,16 +1352,14 @@ public class ElementUtils {
 	 * Waits until the specified element is clickable and clicks the element.
 	 *
 	 * The element must be visible and enabled before the click operation
-	 * is performed.
+	 * is performed. 
 	 *
 	 * @param locator used to identify the element
 	 * @param timeoutSeconds maximum time to wait in seconds
 	 */
 	public void clickWhenReady(By locator, int timeoutSeconds) {
 		validateLocator(locator);
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		myWait.until(ExpectedConditions.elementToBeClickable(locator)).click();
 	}
@@ -1379,9 +1380,7 @@ public class ElementUtils {
 		if (partialTitle == null || partialTitle.isBlank()) {
 	        throw new IllegalArgumentException("Partial title cannot be null or blank");
 	    }
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		myWait.until(ExpectedConditions.titleContains(partialTitle));
 		return driver.getTitle();	
@@ -1403,9 +1402,7 @@ public class ElementUtils {
 		if (title == null || title.isBlank()) {
 	        throw new IllegalArgumentException("Title cannot be null or blank");
 	    }
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		myWait.until(ExpectedConditions.titleIs(title));
 		return driver.getTitle();
@@ -1426,9 +1423,7 @@ public class ElementUtils {
 		if (urlValue == null || urlValue.isBlank()) {
 	        throw new IllegalArgumentException("URL value cannot be null or blank");
 	    }
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		myWait.until(ExpectedConditions.urlContains(urlValue));
 		return driver.getCurrentUrl();
@@ -1449,15 +1444,159 @@ public class ElementUtils {
 		if (urlValue == null || urlValue.isBlank()) {
 	        throw new IllegalArgumentException("URL value cannot be null or blank");
 	    }
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		myWait.until(ExpectedConditions.urlToBe(urlValue));
 		return driver.getCurrentUrl();
 	}
 	
+	/**
+	 * Waits until a JavaScript alert is present in the browser.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return active Alert instance
+	 * @throws IllegalArgumentException if timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public Alert getAlert(int timeoutSeconds) {
+	    validateTimeout(timeoutSeconds);
+
+	    WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+	    return myWait.until(ExpectedConditions.alertIsPresent());
+	}
+
+	/**
+	 * Waits for a JavaScript alert and accepts it.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @throws IllegalArgumentException if timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public void acceptAlert(int timeoutSeconds) {
+	    validateTimeout(timeoutSeconds);
+	    getAlert(timeoutSeconds).accept();
+	}
+
+	/**
+	 * Waits for a JavaScript alert and dismisses it.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @throws IllegalArgumentException if timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public void dismissAlert(int timeoutSeconds) {
+	    validateTimeout(timeoutSeconds);
+	    getAlert(timeoutSeconds).dismiss();
+	}
+
+	/**
+	 * Waits for a JavaScript alert and retrieves its text.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return text displayed in the alert
+	 * @throws IllegalArgumentException if timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public String getAlertText(int timeoutSeconds) {
+	    validateTimeout(timeoutSeconds);
+	    return getAlert(timeoutSeconds).getText();
+	}
+
+	/**
+	 * Waits for a JavaScript prompt, enters text, and accepts it.
+	 *
+	 * @param textValue text to enter into the prompt
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @throws IllegalArgumentException if textValue is invalid or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if no prompt appears within the timeout
+	 */
+	public void sendValueAndAccept(String textValue, int timeoutSeconds) {
+	    validateInput(textValue);
+	    validateTimeout(timeoutSeconds);
+
+	    Alert alert = getAlert(timeoutSeconds);
+	    alert.sendKeys(textValue);
+	    alert.accept();
+	}
+
+	/**
+	 * Waits for a JavaScript prompt, enters text, and dismisses it.
+	 *
+	 * @param textValue text to enter into the prompt
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @throws IllegalArgumentException if textValue is invalid or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if no prompt appears within the timeout
+	 */
+	public void sendValueAndDismiss(String textValue, int timeoutSeconds) {
+	    validateInput(textValue);
+	    validateTimeout(timeoutSeconds);
+
+	    Alert alert = getAlert(timeoutSeconds);
+	    alert.sendKeys(textValue);
+	    alert.dismiss();
+	}
 	
+	/**
+	 * Waits until the frame at the specified index is available and switches to it.
+	 *
+	 * @param frameIndex zero-based index of the frame
+	 * @param timeoutSeconds maximum time to wait for the frame in seconds
+	 * @throws IllegalArgumentException if frameIndex is negative or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the specified timeout
+	 */
+	public void doSwitchToFrame(int frameIndex, int timeoutSeconds) {
+	    if (frameIndex < 0) {
+	        throw new IllegalArgumentException("Frame index must be greater than or equal to zero: " + frameIndex);
+	    }
+
+	    validateTimeout(timeoutSeconds);
+	    WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+	    myWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frameIndex));
+	}
+
+	/**
+	 * Waits until the frame identified by the specified name or ID is available and switches to it.
+	 *
+	 * @param frameNameOrId name or ID used to identify the frame
+	 * @param timeoutSeconds maximum time to wait for the frame in seconds
+	 * @throws IllegalArgumentException if frameNameOrId is null or blank, or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the specified timeout
+	 */
+	public void doSwitchToFrame(String frameNameOrId, int timeoutSeconds) {
+	    validateInput(frameNameOrId);
+	    validateTimeout(timeoutSeconds);
+	    WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+	    myWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frameNameOrId));
+	}
+
+	/**
+	 * Waits until the frame identified by the specified locator is available and switches to it.
+	 *
+	 * @param locator locator used to identify the frame
+	 * @param timeoutSeconds maximum time to wait for the frame in seconds
+	 * @throws IllegalArgumentException if locator is invalid or timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the specified timeout
+	 */
+	public void doSwitchToFrame(By locator, int timeoutSeconds) {
+	    validateLocator(locator);
+	    validateTimeout(timeoutSeconds);
+	    WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+	    myWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(locator));
+	}
+
+	/**
+	 * Waits until the specified WebElement frame is available and switches to it.
+	 *
+	 * @param element WebElement representing the frame
+	 * @param timeoutSeconds maximum time to wait for the frame in seconds
+	 * @throws IllegalArgumentException if timeoutSeconds is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the specified timeout
+	 */
+	public void doSwitchToFrame(WebElement element, int timeoutSeconds) {
+	    validateTimeout(timeoutSeconds);
+	    WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+	    myWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(element));
+	}
 	
 // ========================================================================================
 //		Overloaded Methods
@@ -1471,9 +1610,7 @@ public class ElementUtils {
 	 */
 	public void doClick(By locator, int timeoutSeconds) {
 		validateLocator(locator);
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		doWaitForTheElementVisible(locator, timeoutSeconds).click();
 	}
 		
@@ -1487,9 +1624,7 @@ public class ElementUtils {
 	 */
 	public void doSendKeys(By locator, String value, int timeoutSeconds) {
 		validateLocator(locator);
-		if(timeoutSeconds<=0) {
-			throw new IllegalArgumentException("TimeOut must be greater than zero: " +timeoutSeconds);
-		}
+		validateTimeout(timeoutSeconds);
 		doWaitForTheElementVisible(locator, timeoutSeconds).sendKeys(value);		
 	}
 	
