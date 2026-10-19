@@ -11,13 +11,16 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.WindowType;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
+import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 
@@ -105,6 +108,39 @@ public class ElementUtils {
 	    if (timeoutSeconds <= 0) {
 	        throw new IllegalArgumentException(
 	                "Timeout must be greater than zero: " + timeoutSeconds);
+	    }
+	}
+	
+	/**
+	 * Validates that the polling interval is greater than zero.
+	 *
+	 * @param pollingTime polling interval in seconds
+	 * @throws IllegalArgumentException if pollingTime is less than or equal to zero
+	 */
+	private void validatePollingTime(int pollingTime) {
+	    if (pollingTime <= 0) {
+	        throw new IllegalArgumentException(
+	                "Polling interval must be greater than zero: " + pollingTime);
+	    }
+	}
+	
+	/**
+	 * Validates the wait timeout and polling interval configuration.
+	 *
+	 * Ensures that both values are greater than zero and that the polling
+	 * interval does not exceed the maximum timeout.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if either value is less than or equal to zero,
+	 *         or if pollingTime exceeds timeoutSeconds
+	 */
+	private void validateWaitConfiguration(int timeoutSeconds, int pollingTime) {
+	    validateTimeout(timeoutSeconds);
+	    validateTimeout(pollingTime);
+	    if (pollingTime > timeoutSeconds) {
+	        throw new IllegalArgumentException(
+	                "Polling interval must not exceed the timeout.");
 	    }
 	}
 
@@ -1390,7 +1426,7 @@ public class ElementUtils {
 	/**
 	 * Waits until the browser page title exactly matches the specified text.
 	 *
-	 * @param title exact title expected for the current page
+	 * @param titleValue exact title expected for the current page
 	 * @param timeoutSeconds maximum time to wait in seconds
 	 * @return the current page title when it exactly matches the specified text
 	 * @throws IllegalArgumentException if title is null or blank,
@@ -1398,13 +1434,13 @@ public class ElementUtils {
 	 * @throws org.openqa.selenium.TimeoutException if the page title does not
 	 *         exactly match the specified text within the timeout
 	 */
-	public String waitForTitleIs(String title, int timeoutSeconds) {
-		if (title == null || title.isBlank()) {
+	public String waitForTitleIs(String titleValue, int timeoutSeconds) {
+		if (titleValue == null || titleValue.isBlank()) {
 	        throw new IllegalArgumentException("Title cannot be null or blank");
 	    }
 		validateTimeout(timeoutSeconds);
 		WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-		myWait.until(ExpectedConditions.titleIs(title));
+		myWait.until(ExpectedConditions.titleIs(titleValue));
 		return driver.getTitle();
 	}
 	
@@ -1460,7 +1496,6 @@ public class ElementUtils {
 	 */
 	public Alert getAlert(int timeoutSeconds) {
 	    validateTimeout(timeoutSeconds);
-
 	    WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 	    return myWait.until(ExpectedConditions.alertIsPresent());
 	}
@@ -1597,6 +1632,337 @@ public class ElementUtils {
 	    WebDriverWait myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 	    myWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(element));
 	}
+	
+	// ==========================================
+	// Fluent Wait Configuration
+	// ==========================================
+	
+
+	/**
+	 * Creates and configures a FluentWait instance for the WebDriver.
+	 *
+	 * Validates the timeout and polling interval before configuring the wait.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return configured FluentWait instance
+	 * @throws IllegalArgumentException if the timeout or polling configuration is invalid
+	 */
+	private FluentWait<WebDriver> getFluentWait(int timeoutSeconds, int pollingTime) {
+	    validateTimeout(timeoutSeconds);
+	    validatePollingTime(pollingTime);
+	    validateWaitConfiguration(timeoutSeconds, pollingTime);
+	
+	    return new FluentWait<>(driver)
+	            .withTimeout(Duration.ofSeconds(timeoutSeconds))
+	            .pollingEvery(Duration.ofSeconds(pollingTime));
+	}
+	
+	/**
+	 * Waits until the specified element is present in the DOM.
+	 *
+	 * The element does not need to be visible to satisfy this condition.
+	 *
+	 * @param locator locator used to identify the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return WebElement once it is present in the DOM
+	 * @throws IllegalArgumentException if the locator or wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the element is not found within the timeout
+	 */
+	public WebElement doWaitForTheElementPresence(By locator, int timeoutSeconds, int pollingTime) {
+	    validateLocator(locator);
+	
+	    return getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Element not found: " + locator)
+	            .until(ExpectedConditions.presenceOfElementLocated(locator));
+	}
+	
+	/**
+	 * Waits until the specified element is present in the DOM and visible.
+	 *
+	 * @param locator locator used to identify the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return visible WebElement
+	 * @throws IllegalArgumentException if the locator or wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the element does not become visible within the timeout
+	 */
+	public WebElement doWaitForTheElementVisible(By locator, int timeoutSeconds, int pollingTime) {
+	    validateLocator(locator);
+	
+	    return getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Element is not visible: " + locator)
+	            .until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
+	
+	/**
+	 * Waits until the specified element is clickable and clicks it.
+	 *
+	 * The element must be visible and enabled before the click operation is performed.
+	 *
+	 * @param locator locator used to identify the element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the locator or wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the element does not become clickable within the timeout
+	 */
+	public void clickWhenReady(By locator, int timeoutSeconds, int pollingTime) {
+	    validateLocator(locator);
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Element is not clickable: " + locator)
+	            .until(ExpectedConditions.elementToBeClickable(locator))
+	            .click();
+	}
+	
+	/**
+	 * Waits until the browser page title contains the specified text.
+	 *
+	 * @param partialTitle text expected to appear in the page title
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return current page title after the condition is satisfied
+	 * @throws IllegalArgumentException if the partial title is null or blank, or the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the page title does not contain the expected text within the timeout
+	 */
+	public String waitForTitleContains(String partialTitle, int timeoutSeconds, int pollingTime) {
+	    if (partialTitle == null || partialTitle.isBlank()) {
+	        throw new IllegalArgumentException("Partial title cannot be null or blank");
+	    }
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Page title did not contain: " + partialTitle)
+	            .until(ExpectedConditions.titleContains(partialTitle));
+	
+	    return driver.getTitle();
+	}
+	
+	/**
+	 * Waits until the browser page title exactly matches the specified value.
+	 *
+	 * @param titleValue expected page title
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return current page title after the condition is satisfied
+	 * @throws IllegalArgumentException if the title or wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the page title does not match the expected value within the timeout
+	 */
+	public String waitForTitleIs(String titleValue, int timeoutSeconds, int pollingTime) {
+	    validateInput(titleValue);
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Page title did not match: " + titleValue)
+	            .until(ExpectedConditions.titleIs(titleValue));
+	
+	    return driver.getTitle();
+	}
+	
+	/**
+	 * Waits until the current browser URL contains the specified text.
+	 *
+	 * @param partialUrl text expected to appear in the current URL
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return current browser URL after the condition is satisfied
+	 * @throws IllegalArgumentException if the partial URL or wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the URL does not contain the expected text within the timeout
+	 */
+	public String waitForUrlContains(String partialUrl, int timeoutSeconds, int pollingTime) {
+	    validateInput(partialUrl);
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Current URL did not contain: " + partialUrl)
+	            .until(ExpectedConditions.urlContains(partialUrl));
+	
+	    return driver.getCurrentUrl();
+	}
+	
+	/**
+	 * Waits until the current browser URL exactly matches the specified URL.
+	 *
+	 * @param urlValue expected URL
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return current browser URL after the condition is satisfied
+	 * @throws IllegalArgumentException if the URL or wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the current URL does not match the expected URL within the timeout
+	 */
+	public String waitForUrlToBe(String urlValue, int timeoutSeconds, int pollingTime) {
+	    validateInput(urlValue);
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Current URL did not match: " + urlValue)
+	            .until(ExpectedConditions.urlToBe(urlValue));
+	
+	    return driver.getCurrentUrl();
+	}
+	
+	/**
+	 * Waits until a JavaScript alert is present in the browser.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return Alert instance representing the active JavaScript alert
+	 * @throws IllegalArgumentException if the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public Alert getAlert(int timeoutSeconds, int pollingTime) {
+	    return getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("JavaScript alert did not appear within the timeout")
+	            .until(ExpectedConditions.alertIsPresent());
+	}
+	
+	/**
+	 * Waits for a JavaScript alert and accepts it.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public void acceptAlert(int timeoutSeconds, int pollingTime) {
+	    getAlert(timeoutSeconds, pollingTime).accept();
+	}
+	
+	/**
+	 * Waits for a JavaScript alert and dismisses it.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public void dismissAlert(int timeoutSeconds, int pollingTime) {
+	    getAlert(timeoutSeconds, pollingTime).dismiss();
+	}
+	
+	/**
+	 * Waits for a JavaScript alert and retrieves its text.
+	 *
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @return text displayed in the JavaScript alert
+	 * @throws IllegalArgumentException if the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if no alert appears within the timeout
+	 */
+	public String getAlertText(int timeoutSeconds, int pollingTime) {
+	    return getAlert(timeoutSeconds, pollingTime).getText();
+	}
+	
+	/**
+	 * Waits for a JavaScript prompt, enters the specified text, and accepts it.
+	 *
+	 * @param textValue text to enter into the JavaScript prompt
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the text is null or blank, or the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if no prompt appears within the timeout
+	 */
+	public void sendValueAndAccept(String textValue, int timeoutSeconds, int pollingTime) {
+	    validateInput(textValue);
+	
+	    Alert alert = getAlert(timeoutSeconds, pollingTime);
+	    alert.sendKeys(textValue);
+	    alert.accept();
+	}
+	
+	/**
+	 * Waits for a JavaScript prompt, enters the specified text, and dismisses it.
+	 *
+	 * @param textValue text to enter into the JavaScript prompt
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the text is null or blank, or the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if no prompt appears within the timeout
+	 */
+	public void sendValueAndDismiss(String textValue, int timeoutSeconds, int pollingTime) {
+	    validateInput(textValue);
+	
+	    Alert alert = getAlert(timeoutSeconds, pollingTime);
+	    alert.sendKeys(textValue);
+	    alert.dismiss();
+	}
+	
+	/**
+	 * Waits until the frame at the specified index is available and switches to it.
+	 *
+	 * Frame indexes are zero-based.
+	 *
+	 * @param frameIndex zero-based index of the frame
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the frame index is negative or the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the timeout
+	 */
+	public void doSwitchToFrame(int frameIndex, int timeoutSeconds, int pollingTime) {
+	    if (frameIndex < 0) {
+	        throw new IllegalArgumentException(
+	                "Frame index must be greater than or equal to zero: " + frameIndex);
+	    }
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Frame at index " + frameIndex
+	                    + " is not available within " + timeoutSeconds + " seconds")
+	            .until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frameIndex));
+	}
+	
+	/**
+	 * Waits until the frame identified by its name or ID is available and switches to it.
+	 *
+	 * @param frameNameOrId name or ID of the frame
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the frame name or ID is null or blank, or the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the timeout
+	 */
+	public void doSwitchToFrame(String frameNameOrId, int timeoutSeconds, int pollingTime) {
+	    validateInput(frameNameOrId);
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Frame with name or ID '" + frameNameOrId
+	                    + "' is not available within " + timeoutSeconds + " seconds")
+	            .until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frameNameOrId));
+	}
+	
+	/**
+	 * Waits until the frame identified by the specified locator is available and switches to it.
+	 *
+	 * @param locator locator used to identify the frame element
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the locator or wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the timeout
+	 */
+	public void doSwitchToFrame(By locator, int timeoutSeconds, int pollingTime) {
+	    validateLocator(locator);
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Frame located by " + locator
+	                    + " is not available within " + timeoutSeconds + " seconds")
+	            .until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(locator));
+	}
+	
+	/**
+	 * Waits until the specified frame element is available and switches to it.
+	 *
+	 * @param element WebElement representing the frame
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @param pollingTime interval between polling attempts in seconds
+	 * @throws IllegalArgumentException if the frame element is null or the wait configuration is invalid
+	 * @throws org.openqa.selenium.TimeoutException if the frame is not available within the timeout
+	 */
+	public void doSwitchToFrame(WebElement element, int timeoutSeconds, int pollingTime) {
+	    if (element == null) {
+	        throw new IllegalArgumentException("Frame WebElement cannot be null");
+	    }
+	
+	    getFluentWait(timeoutSeconds, pollingTime)
+	            .withMessage("Frame WebElement is not available within "
+	                    + timeoutSeconds + " seconds")
+	            .until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(element));
+	}
+
 	
 // ========================================================================================
 //		Overloaded Methods
