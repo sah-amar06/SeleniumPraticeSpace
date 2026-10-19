@@ -21,12 +21,6 @@ public class FluentWaitImplementation {
 		
 		By pricing = By.xpath("//a[text()='Pricing']");
 		
-//		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10), Duration.ofSeconds(5))
-//								.withTimeout(Duration.ofSeconds(10))
-//								.pollingEvery(Duration.ofSeconds(2))
-//								.ignoring(NoSuchElementException.class)
-//								.withMessage("===Element is not available====");
-		
 		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
 								.withTimeout(Duration.ofSeconds(10))
 								.pollingEvery(Duration.ofSeconds(1))
