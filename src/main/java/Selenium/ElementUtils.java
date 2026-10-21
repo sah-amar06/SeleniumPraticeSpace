@@ -1368,6 +1368,28 @@ public class ElementUtils {
 	
 	
 	/**
+	 * Waits until at least one element matching the specified locator
+	 * is present in the DOM.
+	 *
+	 * The matching elements do not need to be visible.
+	 *
+	 * @param locator locator used to identify the elements
+	 * @param timeoutSeconds maximum time to wait in seconds
+	 * @return list of matching WebElements present in the DOM
+	 * @throws IllegalArgumentException if the locator is invalid or
+	 *         the timeout is less than or equal to zero
+	 * @throws org.openqa.selenium.TimeoutException if no matching
+	 *         element is found within the specified timeout
+	 */
+	public List<WebElement> waitForPresenceOfElementLocated(By locator, int timeoutSeconds) {
+		validateLocator(locator);
+		validateTimeout(timeoutSeconds);
+		myWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		return myWait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+	}
+	
+	
+	/**
 	 * Waits until the specified element is visible on the page. 
 	 * Visibility means that the element is present in the DOM 
 	 * and has a height and width greater than zero.
